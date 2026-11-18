@@ -1,0 +1,29 @@
+.stoplight {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  background: #222;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+}
+
+.lamp {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 500 13px system-ui, sans-serif;
+  color: rgb(0 0 0 / 0.6);
+  background: var(--lamp-color);
+  /* Unlit: same color, dimmed. */
+  filter: brightness(0.35) saturate(0.6);
+  transition: filter 150ms, box-shadow 150ms;
+}
+
+.lamp--lit {
+  filter: none;
+  color: #fff;
+  box-shadow: 0 0 24px 4px var(--lamp-color);
+}
