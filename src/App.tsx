@@ -1,35 +1,26 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { realClock, type Clock } from "./machine/clock";
+import { useMachine } from "./machine/useMachine";
+import { validateMachine } from "./machine/validate";
+import { standardStoplight } from "./stoplight/config";
+import { Stoplight } from "./stoplight/Stoplight";
+import { validateLamps } from "./stoplight/validateLamps";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Checked once, when the app loads.
+const problems = [...validateMachine(standardStoplight.machine), ...validateLamps(standardStoplight)];
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface AppProps {
+  /** Real time by default; tests pass a manual clock. */
+  clock?: Clock;
 }
 
-export default App
+export default function App({ clock = realClock }: AppProps) {
+  if (problems.length > 0) return <pre className="error">{problems.join("\n")}</pre>;
+  return <RunningStoplight clock={clock} />;
+}
+
+// Split from App because hooks can't come after App's early return.
+function RunningStoplight({ clock }: { clock: Clock }) {
+  const state = useMachine(standardStoplight.machine, clock);
+  const litLampIds = standardStoplight.litLampsByNode[state.node] ?? [];
+  return <Stoplight lamps={standardStoplight.lamps} litLampIds={litLampIds} />;
+}
